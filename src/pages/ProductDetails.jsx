@@ -16,12 +16,21 @@ const ProductDetails = () => {
   const [qty, setQty] = useState(1);
 
   useEffect(() => {
-    const p = products.find(item => (item._id || item.id) === id);
+    if (!products || products.length === 0) return;
+    
+    // Robust Matching Logic
+    const p = products.find(item => {
+      const dbId = String(item._id || '');
+      const slugId = String(item.id || '');
+      return dbId === id || slugId === id;
+    });
+
     if (p) {
       setProduct(p);
       window.scrollTo(0, 0);
     }
   }, [id, products]);
+
 
   if (!product) return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center p-20">
