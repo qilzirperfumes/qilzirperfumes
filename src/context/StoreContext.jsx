@@ -3,11 +3,10 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 const StoreContext = createContext(null);
 
 // ── API URL ────────────────────────────────────────────────────────────────
-// In dev, Vite proxies /api → http://localhost:4000
-// In production, set VITE_API_URL in your deployment environment
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://qilzirperfumes.onrender.com/api';
 
 async function apiFetch(path, options = {}) {
+
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
