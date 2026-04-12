@@ -1,0 +1,106 @@
+.new-arrivals-root {
+  padding-top: 110px;
+  background: #fff;
+  min-height: 100vh;
+}
+
+.arrivals-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #888;
+  margin-bottom: 20px;
+}
+.arrivals-breadcrumb a { color: var(--color-gold); text-decoration: none; }
+.arrivals-breadcrumb span { color: #333; }
+
+.arrivals-hero-header {
+  margin-bottom: 60px;
+}
+
+.arrivals-top-label {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 6px;
+  text-align: center;
+  color: var(--color-gold);
+  margin-bottom: 40px;
+}
+
+.arrivals-banner-section {
+  width: 100%;
+  margin-bottom: 60px;
+}
+.arrivals-banner-container {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  min-height: 380px;
+  overflow: hidden;
+  background: #000;
+}
+.arrivals-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.arrivals-intro-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: flex-start;
+  margin-top: 40px;
+}
+
+.arrivals-main-heading {
+  font-family: var(--font-heading);
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #000;
+}
+
+.arrivals-main-text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #444;
+  font-weight: 400;
+}
+
+/* COLLECTION BAR */
+.arrivals-collection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 40px;
+}
+.collection-count { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+.arrivals-filter-ref {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #000;
+  font-weight: 600;
+  opacity: 0.8;
+}
+.arrivals-filter-ref svg { color: #000; }
+@media (max-width: 900px) {
+  .arrivals-intro-row { grid-template-columns: 1fr; gap: 20px; }
+  .arrivals-main-heading { font-size: 28px; }
+  .arrivals-top-label { font-size: 18px; letter-spacing: 4px; }
+}

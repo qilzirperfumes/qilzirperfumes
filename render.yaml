@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: qilzir-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/index.js
+    envVars:
+      - key: MONGO_URI
+        sync: false # You will paste your URI in the Render dashboard
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production

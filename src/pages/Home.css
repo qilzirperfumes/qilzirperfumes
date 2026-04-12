@@ -1,0 +1,216 @@
+/* Home specific styles */
+
+.hero-section {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  margin-top: -80px; /* Offset navbar padding */
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.05); /* initial scale for subtle zoom */
+  animation: heroZoom 10s infinite alternate linear;
+}
+
+@keyframes heroZoom {
+  0% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.1) 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  color: #ffffff;
+  max-width: 800px;
+}
+
+/* HERO SUBTITLE — always white */
+.hero-subtitle {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.80);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  margin-bottom: 12px;
+}
+
+/* HERO TITLE — white with gold shimmer */
+.hero-title {
+  font-size: clamp(3rem, 5vw, 5rem);
+  margin: 1.5rem 0 2.5rem;
+  color: #ffffff;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.35);
+  /* Gold shimmer on the title */
+  background: linear-gradient(135deg, #fff 30%, #C8A96A 60%, #fff 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 4s linear infinite;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Animations */
+.animate-on-scroll {
+  opacity: 0;
+  transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+}
+
+.fade-up {
+  transform: translateY(60px);
+}
+.fade-up.visible {
+  transform: translateY(0);
+}
+
+.fade-left {
+  transform: translateX(80px);
+}
+.fade-left.visible {
+  transform: translateX(0);
+}
+
+.reveal {
+  clip-path: inset(20% 0% 0% 0%);
+  transform: scale(0.9);
+  filter: blur(10px);
+}
+.reveal.visible {
+  clip-path: inset(0 0 0 0);
+  transform: scale(1);
+  filter: blur(0);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.kit-icon-wrapper {
+  animation: float 6s ease-in-out infinite;
+  display: inline-block;
+}
+.kit-item:nth-child(2) .kit-icon-wrapper { animation-delay: 2s; }
+.kit-item:nth-child(3) .kit-icon-wrapper { animation-delay: 4s; }
+
+/* Featured Section */
+.featured-image-wrapper {
+  position: relative;
+  padding: 2rem;
+}
+
+.featured-image {
+  position: relative;
+  z-index: 2;
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-sm);
+  transition: transform 0.4s ease;
+}
+
+.featured-image-wrapper:hover .featured-image {
+  transform: scale(1.02);
+}
+
+.gold-accent-box {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 80%;
+  height: 80%;
+  border: 2px solid var(--color-gold);
+  z-index: 1;
+  transform: translate(20px, 20px);
+  transition: transform 0.4s ease;
+}
+
+.featured-image-wrapper:hover .gold-accent-box {
+  transform: translate(10px, 10px);
+}
+
+/* Story Section */
+.story-section {
+  background-color: #FFFFFF;
+  overflow: hidden;
+}
+
+.story-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  background-image: linear-gradient(rgba(245, 239, 230, 0.9), rgba(245, 239, 230, 0.9)), url('/hero_luxury_fragrance.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* parallax effect */
+  z-index: 0;
+}
+
+/* Kit Section */
+.kit-item {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  border: 1px solid rgba(200,169,106,0.15);
+  transition: all var(--transition-slow);
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.kit-item:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-gold);
+}
+
+.kit-icon-wrapper {
+  font-family: var(--font-heading);
+  color: var(--color-gold);
+  margin-bottom: 2rem;
+  opacity: 0.8;
+}
+
+/* Testimonials */
+.bg-surface {
+  background-color: var(--color-surface);
+}
+
+.testimonial-card {
+  padding: 2.5rem 2rem;
+  background-color: var(--color-white);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(200,169,106,0.1);
+}
+
+.testimonial-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-5px);
+}
+
+.ml-2 { margin-left: 0.5rem; }
+.transition-transform { transition: transform var(--transition-fast); }
