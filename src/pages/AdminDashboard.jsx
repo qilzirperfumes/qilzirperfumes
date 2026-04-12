@@ -35,8 +35,10 @@ const AdminDashboard = ({ onLogout }) => {
     description:'', image: '', extraImages: '', isNewArrival: false,
     size: '100', unit: 'ml',
     notes: { top: '', heart: '', base: '' },
-    extras: 'Pure Extract, Scent Card, Gifting Case'
+    extras: 'Pure Extract, Scent Card, Gifting Case',
+    videoUrl: '', collection: '', type: ''
   });
+
 
 
   const [editForm, setEditForm]   = useState({});
@@ -52,8 +54,10 @@ const AdminDashboard = ({ onLogout }) => {
       name:'', price:'', originalPrice: '', stock:'', category:'', customCategory:'',
       description:'', image: '', extraImages: '', isNewArrival: false,
       notes: { top: '', heart: '', base: '' },
-      extras: 'Pure Extract, Scent Card, Gifting Case'
+      extras: 'Pure Extract, Scent Card, Gifting Case',
+      videoUrl: '', collection: '', type: ''
     });
+
 
     setModal(false);
     showToast('✓  New release added to catalog');
@@ -77,8 +81,12 @@ const AdminDashboard = ({ onLogout }) => {
       notes: {
         base: p.notes?.base || '',
       },
-      extras: p.extras ? p.extras.join(', ') : 'Pure Extract, Scent Card, Gifting Case'
+      extras: p.extras ? p.extras.join(', ') : 'Pure Extract, Scent Card, Gifting Case',
+      videoUrl: p.videoUrl || '',
+      collection: p.collection || '',
+      type: p.type || ''
     });
+
     setEditTab('basic');
     setEditModal(true);
   };
@@ -181,10 +189,14 @@ const AdminDashboard = ({ onLogout }) => {
                   <label>Olfactory Story (Description)</label>
                   <textarea rows="3" placeholder="Describe the soul of this scent..." value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
                 </div>
+                <div className="form-p-group"><label>Collection</label><input placeholder="e.g. SANS" value={form.collection} onChange={e => setForm({...form, collection: e.target.value})} /></div>
+                <div className="form-p-group"><label>Type</label><input placeholder="e.g. PERFUME" value={form.type} onChange={e => setForm({...form, type: e.target.value})} /></div>
+                <div className="form-p-group span-2"><label>Video URL (YouTube Embed)</label><input placeholder="https://www.youtube.com/embed/..." value={form.videoUrl} onChange={e => setForm({...form, videoUrl: e.target.value})} /></div>
                 <div className="form-p-group span-2">
                   <label>Extra Inclusions (comma separated)</label>
                   <input placeholder="Gifting Box, Scent Card, Pocket Perfume" value={form.extras} onChange={e => setForm({...form, extras: e.target.value})} />
                 </div>
+
                 <div className="form-p-group span-2">
                   <label>Main Image URL</label>
                   <input placeholder="https://..." value={form.image} onChange={e => setForm({...form, image: e.target.value})} />
@@ -231,7 +243,11 @@ const AdminDashboard = ({ onLogout }) => {
                     <div className="form-p-group"><label>New Category</label><input autoFocus value={editForm.customCategory} onChange={e => setEditForm({...editForm, customCategory: e.target.value})} /></div>
                   )}
                   <div className="form-p-group span-2"><label>Extra Inclusions (comma separated)</label><input value={editForm.extras} onChange={e => setEditForm({...editForm, extras: e.target.value})} /></div>
+                  <div className="form-p-group"><label>Collection</label><input placeholder="e.g. SANS" value={editForm.collection} onChange={e => setEditForm({...editForm, collection: e.target.value})} /></div>
+                  <div className="form-p-group"><label>Type</label><input placeholder="e.g. PERFUME" value={editForm.type} onChange={e => setEditForm({...editForm, type: e.target.value})} /></div>
+                  <div className="form-p-group span-2"><label>Video URL (YouTube Embed)</label><input placeholder="https://www.youtube.com/embed/..." value={editForm.videoUrl} onChange={e => setEditForm({...editForm, videoUrl: e.target.value})} /></div>
                 </div>
+
               )}
 
               {editTab === 'pricing' && (

@@ -1,241 +1,197 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Star, RefreshCw, Droplets, Wind, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { 
+  ChevronLeft, ChevronRight, ShoppingBag, 
+  Droplets, Wind, RefreshCw, Star, ArrowLeft
+} from 'lucide-react';
+import './ProductDetails.css';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, formatPrice } = useStore();
-  const [quantity, setQuantity] = useState(1);
+  const { products, addToCart, formatPrice, completeOrder } = useStore();
+  const [product, setProduct] = useState(null);
   const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const [qty, setQty] = useState(1);
 
-  // Find the actual product from our store
-  const product = useMemo(() => {
-    return products.find(p => p.id === id);
-  }, [products, id]);
+  useEffect(() => {
+    const p = products.find(item => (item._id || item.id) === id);
+    if (p) {
+      setProduct(p);
+      window.scrollTo(0, 0);
+    }
+  }, [id, products]);
 
-  // If product not found, we can show a loader or redirect
-  if (!product) {
-    return (
-      <div className="container py-40 text-center">
-        <h2 className="font-heading text-3xl mb-4">Product Not Found</h2>
-        <Link to="/shop" className="btn btn-primary">Back to Shop</Link>
-      </div>
-    );
-  }
+  if (!product) return (
+    <div className="flex flex-col items-center justify-center min-h-screen text-center p-20">
+      <h2 className="font-heading text-4xl mb-6">Fragrance Not Found</h2>
+      <Link to="/shop" className="btn btn-primary">Return to Collection</Link>
+    </div>
+  );
 
-  const allImages = [product.image, ...(product.extraImages || [])].filter(Boolean);
-  const hasOffer = !!product.originalPrice;
-  const originalPrice = product.originalPrice || Math.round(product.price * 1.2);
-  const soldOut = product.stock === 0;
-
-  const handleAddToCart = () => {
-    if (soldOut) return;
-    addToCart(product, quantity);
-    // Optional: navigate to cart or show success
-  };
-
-  const handleBuyNow = () => {
-    if (soldOut) return;
-    addToCart(product, quantity);
-    navigate('/cart');
-  };
+  const allImages = [product.image, ...(product.extraImages || [])];
+  const nextImage = () => setActiveImageIdx((activeImageIdx + 1) % allImages.length);
+  const prevImage = () => setActiveImageIdx((activeImageIdx - 1 + allImages.length) % allImages.length);
 
   return (
-    <div className="product-page">
+    <div className="product-details-page">
       <div className="container py-20">
         
-        {/* Breadcrumbs */}
-        <nav className="mb-10 text-xs uppercase tracking-widest text-mutted flex gap-2">
-          <Link to="/" className="hover:text-gold">Home</Link>
-          <span>/</span>
-          <Link to="/shop" className="hover:text-gold">Shop</Link>
-          <span>/</span>
-          <span className="text-black font-bold">{product.name}</span>
-        </nav>
+        {/* Breadcrumb */}
+        <div className="mb-12">
+          <Link to="/shop" className="flex items-center gap-2 text-mutted hover:text-gold transition-colors text-xs tracking-[0.2em] uppercase">
+            <ArrowLeft size={14} /> Back to Collection
+          </Link>
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
-
+        <div className="grid md:grid-cols-2 gap-20">
           
           {/* ── LEFT: GALLERY ── */}
-          <div className="product-gallery animate-fade-up">
-            <div className="bg-surface p-4 md:p-10 relative overflow-hidden group border border-[#EBE9E4]">
-
+          <div className="product-gallery">
+            <div className="bg-surface p-6 md:p-10 relative overflow-hidden group border border-[#EBE9E4] aspect-[4/5] flex items-center justify-center">
               <img 
                 src={allImages[activeImageIdx]} 
                 alt={product.name} 
-                className="w-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                className="max-h-full object-contain"
               />
               
-              {/* Image Navigation Arrows */}
               {allImages.length > 1 && (
                 <>
-                  <button 
-                    onClick={() => setActiveImageIdx((prev) => (prev === 0 ? allImages.length - 1 : prev - 1))}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full hover:bg-white shadow-sm"
-                  >
-                    <ChevronLeft size={20} />
+                  <button onClick={prevImage} className="gallery-nav-btn left-6">
+                    <ChevronLeft size={24} />
                   </button>
-                  <button 
-                    onClick={() => setActiveImageIdx((prev) => (prev === allImages.length - 1 ? 0 : prev + 1))}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full hover:bg-white shadow-sm"
-                  >
-                    <ChevronRight size={20} />
+                  <button onClick={nextImage} className="gallery-nav-btn right-6">
+                    <ChevronRight size={24} />
                   </button>
                 </>
               )}
-
-              {/* Badges */}
-              <div className="absolute top-6 left-6 flex flex-col gap-2">
-                {product.isNewArrival && <span className="bg-gold text-white text-[10px] font-bold px-3 py-1 tracking-widest uppercase">New Arrival</span>}
-                {hasOffer && !soldOut && <span className="bg-black text-white text-[10px] font-bold px-3 py-1 tracking-widest uppercase">Special Offer</span>}
-                {soldOut && <span className="bg-error text-white text-[10px] font-bold px-3 py-1 tracking-widest uppercase">Sold Out</span>}
-              </div>
             </div>
 
             {/* Thumbnails */}
             {allImages.length > 1 && (
-              <div className="flex gap-4 mt-6 overflow-x-auto pb-2">
+              <div className="grid grid-cols-4 gap-4 mt-6">
                 {allImages.map((img, idx) => (
                   <button 
                     key={idx}
                     onClick={() => setActiveImageIdx(idx)}
-                    className={`w-20 h-20 border-2 transition-all flex-shrink-0 ${activeImageIdx === idx ? 'border-gold p-1' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                    className={`aspect-square border-2 transition-all p-2 bg-surface ${activeImageIdx === idx ? 'border-gold' : 'border-transparent opacity-60 hover:opacity-100'}`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt={`${product.name} thumbnail ${idx}`} className="w-full h-full object-contain" />
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* ── RIGHT: INFO ── */}
-          <div className="product-info animate-fade-up delay-200">
-            <div className="mb-2 text-gold text-xs font-bold tracking-[0.2em] uppercase">Qilzir Perfumes</div>
-            <h1 className="font-heading text-4xl md:text-5xl mb-1">{product.name}</h1>
-            <div className="text-[10px] text-mutted uppercase font-bold tracking-[0.3em] mb-6">
-              Full Flacon • {product.size || 100}{product.unit || 'ml'}
-            </div>
-            
-            <div className="flex items-center gap-4 mb-6">
-              <span className="text-3xl text-black font-medium">{formatPrice(product.price)}</span>
-              {hasOffer && (
-                <span className="text-xl text-mutted line-through">{formatPrice(originalPrice)}</span>
-              )}
-            </div>
-            
-            <div className="flex gap-1 text-gold mb-8">
-              {[...Array(5)].map((_, i) => <Star key={i} fill="currentColor" size={14} />)}
-              <span className="text-black text-xs ml-2 font-bold tracking-widest uppercase opacity-60">(Reviews coming soon)</span>
+          {/* ── RIGHT: DETAILS ── */}
+          <div className="product-details-content">
+            <div className="product-meta-header mb-10">
+              {product.collection && <span className="text-gold tracking-[0.3em] uppercase text-xs mb-2 block">{product.collection} COLLECTION</span>}
+              <h1 className="font-heading text-5xl md:text-6xl mb-6">{product.name}</h1>
+              <div className="flex items-baseline gap-6 mb-8">
+                <span className="text-3xl font-light">{formatPrice(product.price)}</span>
+                {product.originalPrice && <span className="text-mutted line-through text-lg">{formatPrice(product.originalPrice)}</span>}
+              </div>
             </div>
 
-            <p className="text-lg leading-relaxed mb-8 text-mutted">{product.description || 'No description available for this exquisite fragrance.'}</p>
+            <div className="product-info-grid mb-12 border-y border-[#E0DCD3] py-8">
+              <div className="info-row">
+                <span className="info-label">TYPE</span>
+                <span className="info-value uppercase">{product.type || 'PURE ATTAR'}</span>
+              </div>
+              <div className="info-row">
+                <span className="info-label">COLLECTION</span>
+                <span className="info-value uppercase">{product.collection || 'SIGNATURE'}</span>
+              </div>
+              <div className="info-row">
+                <span className="info-label">PROFILE</span>
+                <span className="info-value uppercase">{product.category || 'ORIENTAL'}</span>
+              </div>
+            </div>
 
-            <div className="product-details-notes mt-10 mb-10 pt-8 border-t border-[#E0DCD3]">
-              <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-black mb-8 opacity-90">Olfactory Journey</h3>
-              <div className="flex flex-col gap-8">
-                <div className="note-item group">
-                  <div className="flex items-center gap-4 mb-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gold transition-transform group-hover:scale-125"></span>
-                    <h4 className="font-bold uppercase tracking-[0.2em] text-[10px] text-mutted">Top Notes</h4>
+            <p className="product-description text-lg leading-relaxed text-mutted mb-10">
+              {product.description}
+            </p>
+
+            {/* Olfactory Journey */}
+            <div className="mb-12">
+               <h3 className="text-xs font-bold uppercase tracking-[0.3em] mb-8">Olfactory Journey</h3>
+               <div className="space-y-6">
+                  <div className="note-card">
+                    <span className="note-type">TOP</span>
+                    <span className="note-content">{product.notes?.top || 'Bergamot, Saffron'}</span>
                   </div>
-                  <p className="text-sm font-medium pl-5 leading-relaxed text-black/80">{product.notes?.top || 'Bergamot, Pink Pepper, Saffron'}</p>
-                </div>
-
-                <div className="note-item group">
-                  <div className="flex items-center gap-4 mb-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gold transition-transform group-hover:scale-125"></span>
-                    <h4 className="font-bold uppercase tracking-[0.2em] text-[10px] text-mutted">Heart Notes</h4>
+                  <div className="note-card">
+                    <span className="note-type">HEART</span>
+                    <span className="note-content">{product.notes?.heart || 'Oud, Rose'}</span>
                   </div>
-                  <p className="text-sm font-medium pl-5 leading-relaxed text-black/80">{product.notes?.heart || 'Damascus Rose, Omani Oud, Cedarwood'}</p>
-                </div>
-
-                <div className="note-item group">
-                  <div className="flex items-center gap-4 mb-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gold transition-transform group-hover:scale-125"></span>
-                    <h4 className="font-bold uppercase tracking-[0.2em] text-[10px] text-mutted">Base Notes</h4>
+                  <div className="note-card">
+                    <span className="note-type">BASE</span>
+                    <span className="note-content">{product.notes?.base || 'Vanilla, Musk'}</span>
                   </div>
-                  <p className="text-sm font-medium pl-5 leading-relaxed text-black/80">{product.notes?.base || 'Madagascar Vanilla, Ambergris, Oakmoss'}</p>
-                </div>
-              </div>
+               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row items-stretch gap-4 mb-6">
-              <div className="quantity-control flex items-center border border-[#E0DCD3]">
-                <button 
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-                  className="px-5 py-4 hover:text-gold transition-colors"
-                  disabled={soldOut}
-                >-</button>
-                <span className="px-4 py-4 min-w-[50px] text-center font-bold">{quantity}</span>
-                <button 
-                  onClick={() => setQuantity(quantity + 1)} 
-                  className="px-5 py-4 hover:text-gold transition-colors"
-                  disabled={soldOut}
-                >+</button>
-              </div>
-              <button 
-                onClick={handleAddToCart}
-                disabled={soldOut}
-                className={`btn ${soldOut ? 'btn-disabled cursor-not-allowed opacity-50' : 'btn-primary'} flex-1 flex justify-center items-center gap-2 py-4`}
-              >
-                <ShoppingBag size={18} /> {soldOut ? 'Sold Out' : 'Add To Cart'}
-              </button>
+            {/* Add to Cart Section */}
+            <div className="add-to-cart-container bg-surface p-8 border border-[#EBE9E4] mb-12">
+               <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
+                 <div className="qty-picker">
+                   <button onClick={() => setQty(Math.max(1, qty - 1))} className="qty-btn">-</button>
+                   <span className="qty-value">{qty}</span>
+                   <button onClick={() => setQty(qty + 1)} className="qty-btn">+</button>
+                 </div>
+                 <button onClick={() => addToCart(product, qty)} className="btn btn-gold flex-1 py-5 text-lg w-full">
+                   ADD TO CART
+                 </button>
+               </div>
+               <div className="text-center py-4 bg-[#4A1D33] text-white tracking-widest text-[10px] uppercase">
+                  Free Shipping from ₹15,000 · Estimated Delivery 2-5 Working Days
+               </div>
             </div>
-            
-            <button 
-              onClick={handleBuyNow}
-              disabled={soldOut}
-              className={`btn ${soldOut ? 'hidden' : 'btn-gold'} w-full flex justify-center items-center gap-2 mb-8 py-4`}
-            >
-              Express Checkout
-            </button>
-
-            <div className="product-features grid grid-cols-3 gap-2 text-center mt-12 bg-surface p-6 rounded-sm border border-[#EBE9E4]">
-              <div className="flex flex-col items-center">
-                <Wind size={20} className="text-gold mb-2" />
-                <span className="text-[9px] uppercase font-bold tracking-widest">High Projection</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <RefreshCw size={20} className="text-gold mb-2" />
-                <span className="text-[9px] uppercase font-bold tracking-widest">24H Longevity</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Droplets size={20} className="text-gold mb-2" />
-                <span className="text-[9px] uppercase font-bold tracking-widest">Pure Extrait</span>
-              </div>
-            </div>
-
           </div>
+
         </div>
 
-        {/* The Experience Bar */}
-        <div className="mt-32 pt-20 border-t border-[#E0DCD3]">
+        {/* ── CONNOISSEUR EXPERIENCE ── */}
+        <div className="mt-40 pt-20 border-t border-[#E0DCD3]">
           <div className="text-center mb-16">
-            <h2 className="font-heading text-3xl md:text-4xl">The Connoisseur Experience</h2>
-            <p className="text-mutted mt-3 tracking-widest uppercase text-xs">Included with every {product.size || 10} {product.unit || 'ml'} flacon</p>
+            <h2 className="font-heading text-4xl mb-4">The Connoisseur Experience</h2>
+            <p className="text-mutted tracking-widest uppercase text-xs">Included with every Qilzir flacon</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
              {(product.extras && product.extras.length > 0 ? product.extras : ['Pure Extract', 'Scent Card', 'Gifting Case']).map((extra, idx) => (
-               <div key={idx} className="text-center p-8 md:p-10 bg-surface border border-transparent hover:border-gold/20 transition-all">
+               <div key={idx} className="text-center p-12 bg-surface">
                   <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
                     {idx === 0 ? <Droplets size={20} className="text-gold" /> : 
                      idx === 1 ? <Wind size={20} className="text-gold" /> : 
                      <RefreshCw size={20} className="text-gold" />}
                   </div>
                   <h3 className="font-heading text-xl mb-3">{extra}</h3>
-                  <p className="text-mutted text-sm leading-relaxed">
-                    {extra === 'Pure Extract' ? 'Concentrated attar oil crafted with zero alcohol for a skin-intimate, long-lasting aura.' :
-                     extra === 'Scent Card' ? 'A detailed breakdown of the fragrance pyramid, origin of ingredients, and usage guide.' :
-                     extra === 'Gifting Case' ? 'Arrives in a signature velvet-lined presentation box, perfect for preservation or gifting.' :
-                     'Included as a hallmark of Qilzir quality and artisan craftsmanship.'}
-                  </p>
+                  <p className="text-mutted text-sm leading-relaxed">Hallmark of craft.</p>
                </div>
              ))}
           </div>
         </div>
+
+        {/* ── VIDEO SECTION ── */}
+        {product.videoUrl && (
+          <div className="product-video-section mt-40">
+            <div className="text-center mb-16 max-w-2xl mx-auto">
+               <h2 className="font-heading text-5xl mb-6">A True Innovation</h2>
+               <p className="text-mutted italic text-lg leading-relaxed">"Pushing the boundaries of traditional perfumery with every droplet of artisan essence."</p>
+            </div>
+            <div className="relative aspect-video w-full overflow-hidden bg-black shadow-2xl">
+              <iframe 
+                src={product.videoUrl} 
+                title={product.name} 
+                className="absolute inset-0 w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen
+              />
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

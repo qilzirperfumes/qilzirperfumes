@@ -7,7 +7,8 @@ import './Checkout.css';
 const STEPS = ['Delivery', 'Payment', 'Confirm'];
 
 const Checkout = () => {
-  const { cartItems, cartTotal, formatPrice, completeOrder, isCODEligible } = useStore();
+  const { cartItems, cartTotal, formatPrice, completeOrder, isCODEligible, createOrder } = useStore();
+
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('online');

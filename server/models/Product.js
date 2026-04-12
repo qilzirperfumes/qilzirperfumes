@@ -11,6 +11,9 @@ const productSchema = new mongoose.Schema({
   category:    { type: String, default: 'oud' },
   image:       { type: String, default: '/silk_amber_attar.png' },
   extraImages: { type: [String], default: [] },
+  videoUrl:    { type: String, default: '' },
+  collection:  { type: String, default: 'Signature' },
+  type:        { type: String, default: 'Pure Attar' },
   notes: {
     top:   { type: String, default: '' },
     heart: { type: String, default: '' },
