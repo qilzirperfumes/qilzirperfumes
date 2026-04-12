@@ -3,22 +3,23 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { 
   ChevronLeft, ChevronRight, ShoppingBag, 
-  Droplets, Wind, RefreshCw, Star, ArrowLeft
+  Droplets, Wind, RefreshCw, Star, ArrowLeft,
+  ChevronDown, Search, Globe, ShieldCheck
 } from 'lucide-react';
 import './ProductDetails.css';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, addToCart, formatPrice, completeOrder } = useStore();
+  const { products, addToCart, formatPrice } = useStore();
   const [product, setProduct] = useState(null);
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [qty, setQty] = useState(1);
+  const [activeTab, setActiveTab] = useState('notes');
 
   useEffect(() => {
     if (!products || products.length === 0) return;
     
-    // Robust Matching Logic
     const p = products.find(item => {
       const dbId = String(item._id || '');
       const slugId = String(item.id || '');
@@ -31,7 +32,6 @@ const ProductDetails = () => {
     }
   }, [id, products]);
 
-
   if (!product) return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center p-20">
       <h2 className="font-heading text-4xl mb-6">Fragrance Not Found</h2>
@@ -39,168 +39,208 @@ const ProductDetails = () => {
     </div>
   );
 
-  const allImages = [product.image, ...(product.extraImages || [])];
+  const allImages = [product.image, ...(product.extraImages || [])].filter(Boolean);
   const nextImage = () => setActiveImageIdx((activeImageIdx + 1) % allImages.length);
   const prevImage = () => setActiveImageIdx((activeImageIdx - 1 + allImages.length) % allImages.length);
 
-  return (
-    <div className="product-details-page">
-      <div className="container py-20">
-        
-        {/* Breadcrumb */}
-        <div className="mb-12">
-          <Link to="/shop" className="flex items-center gap-2 text-mutted hover:text-gold transition-colors text-xs tracking-[0.2em] uppercase">
-            <ArrowLeft size={14} /> Back to Collection
-          </Link>
-        </div>
+  const getEmbedUrl = (url) => {
+    if (!url) return null;
+    if (url.includes('youtube.com/embed/')) return url;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : url;
+  };
 
-        <div className="grid md:grid-cols-2 gap-20">
+  return (
+    <div className="xerjoff-inspired-page animate-fade-in">
+      
+      {/* ── TOP NAVIGATION CONTEXT ── */}
+      <div className="product-top-nav container">
+        <Link to="/shop" className="back-link">
+           <ArrowLeft size={14} /> <span>BACK TO COLLECTION</span>
+        </Link>
+        <div className="breadcrumb-info">
+           ARTISAN ARCHIVE / {product.collection || 'SIGNATURE'} / {product.name}
+        </div>
+      </div>
+
+      <div className="main-product-container container">
+        <div className="grid lg:grid-cols-12 gap-16 items-start">
           
-          {/* ── LEFT: GALLERY ── */}
-          <div className="product-gallery">
-            <div className="bg-surface p-6 md:p-10 relative overflow-hidden group border border-[#EBE9E4] aspect-[4/5] flex items-center justify-center">
+          {/* ── LEFT: IMMERSIVE GALLERY ── */}
+          <div className="lg:col-span-7 gallery-stage">
+            <div className="main-visual-wrap shadow-xl">
               <img 
                 src={allImages[activeImageIdx]} 
                 alt={product.name} 
-                className="max-h-full object-contain"
+                className="main-visual"
               />
-              
               {allImages.length > 1 && (
-                <>
-                  <button onClick={prevImage} className="gallery-nav-btn left-6">
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button onClick={nextImage} className="gallery-nav-btn right-6">
-                    <ChevronRight size={24} />
-                  </button>
-                </>
+                <div className="gallery-nav">
+                  <button onClick={prevImage} className="nav-circ"><ChevronLeft size={20} /></button>
+                  <button onClick={nextImage} className="nav-circ"><ChevronRight size={20} /></button>
+                </div>
               )}
             </div>
-
-            {/* Thumbnails */}
-            {allImages.length > 1 && (
-              <div className="grid grid-cols-4 gap-4 mt-6">
-                {allImages.map((img, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => setActiveImageIdx(idx)}
-                    className={`aspect-square border-2 transition-all p-2 bg-surface ${activeImageIdx === idx ? 'border-gold' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                  >
-                    <img src={img} alt={`${product.name} thumbnail ${idx}`} className="w-full h-full object-contain" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ── RIGHT: DETAILS ── */}
-          <div className="product-details-content">
-            <div className="product-meta-header mb-10">
-              {product.collection && <span className="text-gold tracking-[0.3em] uppercase text-xs mb-2 block">{product.collection} COLLECTION</span>}
-              <h1 className="font-heading text-5xl md:text-6xl mb-6">{product.name}</h1>
-              <div className="flex items-baseline gap-6 mb-8">
-                <span className="text-3xl font-light">{formatPrice(product.price)}</span>
-                {product.originalPrice && <span className="text-mutted line-through text-lg">{formatPrice(product.originalPrice)}</span>}
-              </div>
-            </div>
-
-            <div className="product-info-grid mb-12 border-y border-[#E0DCD3] py-8">
-              <div className="info-row">
-                <span className="info-label">TYPE</span>
-                <span className="info-value uppercase">{product.type || 'PURE ATTAR'}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">COLLECTION</span>
-                <span className="info-value uppercase">{product.collection || 'SIGNATURE'}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">PROFILE</span>
-                <span className="info-value uppercase">{product.category || 'ORIENTAL'}</span>
-              </div>
-            </div>
-
-            <p className="product-description text-lg leading-relaxed text-mutted mb-10">
-              {product.description}
-            </p>
-
-            {/* Olfactory Journey */}
-            <div className="mb-12">
-               <h3 className="text-xs font-bold uppercase tracking-[0.3em] mb-8">Olfactory Journey</h3>
-               <div className="space-y-6">
-                  <div className="note-card">
-                    <span className="note-type">TOP</span>
-                    <span className="note-content">{product.notes?.top || 'Bergamot, Saffron'}</span>
-                  </div>
-                  <div className="note-card">
-                    <span className="note-type">HEART</span>
-                    <span className="note-content">{product.notes?.heart || 'Oud, Rose'}</span>
-                  </div>
-                  <div className="note-card">
-                    <span className="note-type">BASE</span>
-                    <span className="note-content">{product.notes?.base || 'Vanilla, Musk'}</span>
-                  </div>
-               </div>
-            </div>
-
-            {/* Add to Cart Section */}
-            <div className="add-to-cart-container bg-surface p-8 border border-[#EBE9E4] mb-12">
-               <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
-                 <div className="qty-picker">
-                   <button onClick={() => setQty(Math.max(1, qty - 1))} className="qty-btn">-</button>
-                   <span className="qty-value">{qty}</span>
-                   <button onClick={() => setQty(qty + 1)} className="qty-btn">+</button>
-                 </div>
-                 <button onClick={() => addToCart(product, qty)} className="btn btn-gold flex-1 py-5 text-lg w-full">
-                   ADD TO CART
-                 </button>
-               </div>
-               <div className="text-center py-4 bg-[#4A1D33] text-white tracking-widest text-[10px] uppercase">
-                  Free Shipping from ₹15,000 · Estimated Delivery 2-5 Working Days
-               </div>
+            
+            <div className="thumbnails-strip mt-8">
+              {allImages.map((img, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => setActiveImageIdx(idx)}
+                  className={`thumb-btn ${activeImageIdx === idx ? 'active' : ''}`}
+                >
+                  <img src={img} alt="thumb" />
+                </button>
+              ))}
             </div>
           </div>
 
+          {/* ── RIGHT: MASTER METADATA ── */}
+          <div className="lg:col-span-5 info-stage pt-4">
+             <div className="product-header-luxury mb-10">
+                <span className="scent-label">{product.collection || 'SIGNATURE'} COLLECTION</span>
+                <h1 className="product-title-bold uppercase tracking-tight">{product.name}</h1>
+                <div className="price-display mt-4">
+                   <span className="price-current">{formatPrice(product.price)}</span>
+                   {product.originalPrice > product.price && (
+                      <span className="price-original">{formatPrice(product.originalPrice)}</span>
+                   )}
+                </div>
+             </div>
+
+             <div className="metadata-table mb-12">
+                <div className="meta-item">
+                   <span className="meta-label">TYPE</span>
+                   <span className="meta-val">{product.type || 'PURE ATTAR'}</span>
+                </div>
+                <div className="meta-item">
+                   <span className="meta-label">SCENT PROFILE</span>
+                   <span className="meta-val">{product.category || 'ORIENTAL WOOD'}</span>
+                </div>
+             </div>
+
+             {product.description && product.description.toLowerCase() !== 'nothing' && (
+                <div className="narrative-section mb-12">
+                   <p>{product.description}</p>
+                </div>
+             )}
+
+             {/* Tabbed Experience */}
+             <div className="experience-tabs mb-12">
+                <div className="tabs-header">
+                   <button 
+                      className={`tab-link ${activeTab === 'notes' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('notes')}
+                   >
+                      SCENT NOTES
+                   </button>
+                   <button 
+                      className={`tab-link ${activeTab === 'details' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('details')}
+                   >
+                      TECHNICAL DETAILS
+                   </button>
+                </div>
+
+                <div className="tabs-content py-8">
+                   {activeTab === 'notes' ? (
+                      <div className="scent-notes-grid">
+                         <div className="note-group">
+                            <span className="note-heading">TOP</span>
+                            <p>{product.notes?.top || 'Fresh Saffron, White Bergamot, Spice'}</p>
+                         </div>
+                         <div className="note-group">
+                            <span className="note-heading">HEART</span>
+                            <p>{product.notes?.heart || 'Cambodian Oud, Damascus Rose, Jasmine'}</p>
+                         </div>
+                         <div className="note-group">
+                            <span className="note-heading">BASE</span>
+                            <p>{product.notes?.base || 'Madagascar Vanilla, Crystal Musk, Amber'}</p>
+                         </div>
+                      </div>
+                   ) : (
+                      <div className="technical-list">
+                         <div className="tech-row"><span>Volume</span> <span>{product.size}{product.unit || 'ml'}</span></div>
+                         <div className="tech-row"><span>Intensity</span> <span>Extrait (30%+)</span></div>
+                         <div className="tech-row"><span>Origin</span> <span>House Archives</span></div>
+                         <div className="tech-row"><span>Longevity</span> <span>12+ Hours</span></div>
+                      </div>
+                   )}
+                </div>
+             </div>
+
+             {/* Purchase Bloc */}
+             <div className="purchase-bloc sticky-pos">
+                <div className="order-controls mb-6">
+                   <div className="qty-luxury">
+                      <button onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
+                      <span>{qty}</span>
+                      <button onClick={() => setQty(qty + 1)}>+</button>
+                   </div>
+                   <button onClick={() => addToCart(product, qty)} className="atc-btn-luxury">
+                      ADD TO CART
+                   </button>
+                </div>
+                <div className="shipping-banner-plum">
+                   FREE WORLDWIDE SHIPPING FROM ₹15,000
+                </div>
+             </div>
+          </div>
         </div>
 
-        {/* ── CONNOISSEUR EXPERIENCE ── */}
-        <div className="mt-40 pt-20 border-t border-[#E0DCD3]">
-          <div className="text-center mb-16">
-            <h2 className="font-heading text-4xl mb-4">The Connoisseur Experience</h2>
-            <p className="text-mutted tracking-widest uppercase text-xs">Included with every Qilzir flacon</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-             {(product.extras && product.extras.length > 0 ? product.extras : ['Pure Extract', 'Scent Card', 'Gifting Case']).map((extra, idx) => (
-               <div key={idx} className="text-center p-12 bg-surface">
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-                    {idx === 0 ? <Droplets size={20} className="text-gold" /> : 
-                     idx === 1 ? <Wind size={20} className="text-gold" /> : 
-                     <RefreshCw size={20} className="text-gold" />}
-                  </div>
-                  <h3 className="font-heading text-xl mb-3">{extra}</h3>
-                  <p className="text-mutted text-sm leading-relaxed">Hallmark of craft.</p>
-               </div>
-             ))}
-          </div>
+        {/* ── DEEP IMMERSION (Ingredient Visuals) ── */}
+        <div className="mt-40 grid md:grid-cols-2 gap-20 items-center">
+           <div className="immersion-text">
+              <span className="scent-label">INGREDIENT HIGHLIGHT</span>
+              <h2 className="font-heading text-6xl mb-8">Artisan Sourcing</h2>
+              <p className="text-xl font-light text-mutted leading-relaxed">
+                 We select only the most precious raw materials from the ancient silk road. Our oils are aged 
+                 for 24 months in complete darkness to achieve a depth that transcends traditional perfumery.
+              </p>
+           </div>
+           <div className="immersion-visual shadow-2xl overflow-hidden aspect-square">
+              <img src="/hero_luxury_fragrance.png" alt="Sourcing" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" />
+           </div>
         </div>
 
-        {/* ── VIDEO SECTION ── */}
+        {/* ── CINEMATIC FILM ── */}
         {product.videoUrl && (
-          <div className="product-video-section mt-40">
-            <div className="text-center mb-16 max-w-2xl mx-auto">
-               <h2 className="font-heading text-5xl mb-6">A True Innovation</h2>
-               <p className="text-mutted italic text-lg leading-relaxed">"Pushing the boundaries of traditional perfumery with every droplet of artisan essence."</p>
-            </div>
-            <div className="relative aspect-video w-full overflow-hidden bg-black shadow-2xl">
-              <iframe 
-                src={product.videoUrl} 
-                title={product.name} 
-                className="absolute inset-0 w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen
-              />
-            </div>
+          <div className="mt-40 concept-film-section">
+             <div className="text-center mb-16">
+                <span className="scent-label">COLLECTION FILM</span>
+                <h2 className="font-heading text-5xl mt-4 uppercase">Visual Journey</h2>
+             </div>
+             <div className="video-window relative aspect-video bg-black shadow-2xl">
+                <iframe 
+                  src={getEmbedUrl(product.videoUrl)} 
+                  title="Film"
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                />
+             </div>
           </div>
         )}
+
+        {/* ── EXPERIENCE CARDS ── */}
+        <div className="mt-40 experience-led-grid grid md:grid-cols-3 gap-10">
+           <div className="exp-card border border-[#E0DCD3] p-12 text-center">
+              <Droplets className="mx-auto text-[#C8B078] mb-6" size={32} />
+              <h3 className="font-heading text-2xl mb-4">Pure Extract</h3>
+              <p className="text-sm text-mutted">No alcohol diluents. Just pure essential essence.</p>
+           </div>
+           <div className="exp-card border border-[#E0DCD3] p-12 text-center">
+              <Globe className="mx-auto text-[#C8B078] mb-6" size={32} />
+              <h3 className="font-heading text-2xl mb-4">Ethical Source</h3>
+              <p className="text-sm text-mutted">Direct trade with the world's most elite plantations.</p>
+           </div>
+           <div className="exp-card border border-[#E0DCD3] p-12 text-center">
+              <ShieldCheck className="mx-auto text-[#C8B078] mb-6" size={32} />
+              <h3 className="font-heading text-2xl mb-4">Archive Seal</h3>
+              <p className="text-sm text-mutted">Guaranteed authenticity and vintage heritage.</p>
+           </div>
+        </div>
 
       </div>
     </div>
