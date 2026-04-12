@@ -121,8 +121,9 @@ const Checkout = () => {
       await createOrder(orderData);
       setPlaced(true);
     } catch (err) {
-      alert("Failed to save order. Please try again.");
+      alert(`Failed to save order: ${err.message}. Please check if database is connected.`);
     }
+
   };
 
   const handleConfirmOrder = () => {
@@ -298,8 +299,9 @@ const Checkout = () => {
               <div className="confirm-section">
                 <div className="confirm-label">Payment</div>
                 <div className="confirm-value">
-                  {paymentMethod === 'online' ? '💳 Online Payment (Card ending ···' + (cardForm.number.slice(-4) || '****') + ')' : '🚚 Cash on Delivery'}
+                  {paymentMethod === 'online' ? '💳 Online Payment (Razorpay)' : '🚚 Cash on Delivery'}
                 </div>
+
               </div>
 
               <div className="confirm-items">

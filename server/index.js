@@ -24,13 +24,10 @@ app.use((req, res, next) => {
   next();
 });
 app.use(cors({
-  origin: [
-    'http://localhost:5173',      // Vite dev
-    'http://localhost:4173',      // Vite preview
-    process.env.FRONTEND_URL,     // Production frontend URL
-  ].filter(Boolean),
+  origin: '*', // Allow all temporarily for debugging
   credentials: true,
 }));
+
 app.use(express.json());
 
 // ── Routes ─────────────────────────────────────────────
