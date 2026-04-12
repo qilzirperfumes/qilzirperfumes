@@ -118,10 +118,15 @@ img {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 5%;
+  padding: 0 6%;
+}
+
+@media (min-width: 768px) {
+  .container { padding: 0 5%; }
 }
 
 .text-center { text-align: center; }
+
 .text-gold { color: var(--color-gold); }
 .text-gold-gradient {
   background: linear-gradient(to right, #C8A96A 0%, #FFF 50%, #C8A96A 100%);
@@ -138,14 +143,16 @@ img {
 .text-lg { font-size: 1.125rem; }
 .text-xl { font-size: 1.25rem; }
 .text-2xl { font-size: 1.5rem; }
-.text-3xl { font-size: 2rem; }
-.text-4xl { font-size: 2.5rem; }
-.text-5xl { font-size: 3.5rem; }
+.text-3xl { font-size: 1.75rem; }
+.text-4xl { font-size: 2.25rem; }
+.text-5xl { font-size: 3rem; }
 
 @media (min-width: 768px) {
+  .text-3xl { font-size: 2.25rem; }
   .text-4xl { font-size: 3rem; }
   .text-5xl { font-size: 4.5rem; }
 }
+
 
 .font-heading { font-family: var(--font-heading); }
 .font-bold { font-weight: 600; }
@@ -326,10 +333,11 @@ img {
 .gap-12 { gap: 3rem; }
 
 @media (min-width: 768px) {
-  .md-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-  .md-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-  .md-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .md-grid-cols-2, .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .md-grid-cols-3, .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .md-grid-cols-4, .md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
 }
+
 
 /* Page Transitions */
 .page-transition-enter {

@@ -34,8 +34,10 @@ const AdminDashboard = ({ onLogout }) => {
     name:'', price:'', originalPrice: '', stock:'', category:'', customCategory:'',
     description:'', image: '', extraImages: '', isNewArrival: false,
     size: '100', unit: 'ml',
-    notes: { top: '', heart: '', base: '' }
+    notes: { top: '', heart: '', base: '' },
+    extras: 'Pure Extract, Scent Card, Gifting Case'
   });
+
 
   const [editForm, setEditForm]   = useState({});
   const [editTab, setEditTab]     = useState('basic');
@@ -49,8 +51,10 @@ const AdminDashboard = ({ onLogout }) => {
     setForm({ 
       name:'', price:'', originalPrice: '', stock:'', category:'', customCategory:'',
       description:'', image: '', extraImages: '', isNewArrival: false,
-      notes: { top: '', heart: '', base: '' }
+      notes: { top: '', heart: '', base: '' },
+      extras: 'Pure Extract, Scent Card, Gifting Case'
     });
+
     setModal(false);
     showToast('✓  New release added to catalog');
   };
@@ -71,14 +75,14 @@ const AdminDashboard = ({ onLogout }) => {
       category: p.category || '',
       customCategory: '',
       notes: {
-        top: p.notes?.top || '',
-        heart: p.notes?.heart || '',
         base: p.notes?.base || '',
-      }
+      },
+      extras: p.extras ? p.extras.join(', ') : 'Pure Extract, Scent Card, Gifting Case'
     });
     setEditTab('basic');
     setEditModal(true);
   };
+
 
   const saveEdit = (e) => {
     e.preventDefault();
@@ -88,9 +92,10 @@ const AdminDashboard = ({ onLogout }) => {
       price: Number(editForm.price),
       originalPrice: editForm.originalPrice ? Number(editForm.originalPrice) : undefined,
       stock: parseInt(editForm.stock) || 0,
-      extraImages: editForm.extraImages ? editForm.extraImages.split(',').map(s => s.trim()).filter(Boolean) : [],
       category: finalCategory,
+      extras: editForm.extras ? editForm.extras.split(',').map(s => s.trim()).filter(Boolean) : [],
     });
+
     setEditModal(false);
     showToast(`✓  "${editForm.name}" details updated`);
   };
@@ -177,9 +182,14 @@ const AdminDashboard = ({ onLogout }) => {
                   <textarea rows="3" placeholder="Describe the soul of this scent..." value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
                 </div>
                 <div className="form-p-group span-2">
+                  <label>Extra Inclusions (comma separated)</label>
+                  <input placeholder="Gifting Box, Scent Card, Pocket Perfume" value={form.extras} onChange={e => setForm({...form, extras: e.target.value})} />
+                </div>
+                <div className="form-p-group span-2">
                   <label>Main Image URL</label>
                   <input placeholder="https://..." value={form.image} onChange={e => setForm({...form, image: e.target.value})} />
                 </div>
+
               </div>
               <footer className="modal-p-footer">
                 <button type="submit" className="btn-p-primary">Publish to House</button>
@@ -220,6 +230,7 @@ const AdminDashboard = ({ onLogout }) => {
                   {editForm.category === 'new' && (
                     <div className="form-p-group"><label>New Category</label><input autoFocus value={editForm.customCategory} onChange={e => setEditForm({...editForm, customCategory: e.target.value})} /></div>
                   )}
+                  <div className="form-p-group span-2"><label>Extra Inclusions (comma separated)</label><input value={editForm.extras} onChange={e => setEditForm({...editForm, extras: e.target.value})} /></div>
                 </div>
               )}
 
@@ -395,14 +406,21 @@ const AdminDashboard = ({ onLogout }) => {
                  <table>
                    <thead><tr><th>Order ID</th><th>Customer Entity</th><th>Acquisition Value</th><th>Date</th></tr></thead>
                    <tbody>
-                     {orders.map(o => (
-                       <tr key={o.orderId}>
-                         <td className="td-order-id">{o.orderId}</td>
-                         <td>{o.customerName}</td>
-                         <td className="td-price-p">{formatPrice(o.total)}</td>
-                         <td className="td-sku-p">{new Date(o.createdAt).toLocaleDateString()}</td>
-                       </tr>
-                     ))}
+                      {orders.map(o => (
+                        <tr key={o._id || o.id}>
+                          <td className="td-order-id">{(o._id || o.id || '').slice(-8).toUpperCase()}</td>
+                          <td>
+                            <div>{o.customerName}</div>
+                            <div className="td-sku-p">{o.phone}</div>
+                          </td>
+                          <td>
+                            <div className="td-price-p">{formatPrice(o.total)}</div>
+                            <div className="td-sku-p">{o.items?.length || 0} items</div>
+                          </td>
+                          <td className="td-sku-p">{new Date(o.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+
                    </tbody>
                  </table>
                </div>

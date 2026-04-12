@@ -55,11 +55,13 @@ const ProductDetails = () => {
           <span className="text-black font-bold">{product.name}</span>
         </nav>
 
-        <div className="grid md-grid-cols-2 gap-16 items-start">
+        <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
+
           
           {/* ── LEFT: GALLERY ── */}
           <div className="product-gallery animate-fade-up">
-            <div className="bg-surface p-6 md:p-10 relative overflow-hidden group border border-[#EBE9E4]">
+            <div className="bg-surface p-4 md:p-10 relative overflow-hidden group border border-[#EBE9E4]">
+
               <img 
                 src={allImages[activeImageIdx]} 
                 alt={product.name} 
@@ -215,28 +217,23 @@ const ProductDetails = () => {
             <h2 className="font-heading text-3xl md:text-4xl">The Connoisseur Experience</h2>
             <p className="text-mutted mt-3 tracking-widest uppercase text-xs">Included with every {product.size || 10} {product.unit || 'ml'} flacon</p>
           </div>
-          <div className="grid md-grid-cols-3 gap-8">
-             <div className="text-center p-10 bg-surface border border-transparent hover:border-gold/20 transition-all">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <Droplets size={20} className="text-gold" />
-                </div>
-                <h3 className="font-heading text-xl mb-3">Pure Extract</h3>
-                <p className="text-mutted text-sm leading-relaxed">Concentrated attar oil crafted with zero alcohol for a skin-intimate, long-lasting aura.</p>
-             </div>
-             <div className="text-center p-10 bg-surface border border-transparent hover:border-gold/20 transition-all">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <Wind size={20} className="text-gold" />
-                </div>
-                <h3 className="font-heading text-xl mb-3">Scent Card</h3>
-                <p className="text-mutted text-sm leading-relaxed">A detailed breakdown of the fragrance pyramid, origin of ingredients, and usage guide.</p>
-             </div>
-             <div className="text-center p-10 bg-surface border border-transparent hover:border-gold/20 transition-all">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <RefreshCw size={20} className="text-gold" />
-                </div>
-                <h3 className="font-heading text-xl mb-3">Gifting Case</h3>
-                <p className="text-mutted text-sm leading-relaxed">Arrives in a signature velvet-lined presentation box, perfect for preservation or gifting.</p>
-             </div>
+          <div className="grid md:grid-cols-3 gap-8">
+             {(product.extras && product.extras.length > 0 ? product.extras : ['Pure Extract', 'Scent Card', 'Gifting Case']).map((extra, idx) => (
+               <div key={idx} className="text-center p-8 md:p-10 bg-surface border border-transparent hover:border-gold/20 transition-all">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                    {idx === 0 ? <Droplets size={20} className="text-gold" /> : 
+                     idx === 1 ? <Wind size={20} className="text-gold" /> : 
+                     <RefreshCw size={20} className="text-gold" />}
+                  </div>
+                  <h3 className="font-heading text-xl mb-3">{extra}</h3>
+                  <p className="text-mutted text-sm leading-relaxed">
+                    {extra === 'Pure Extract' ? 'Concentrated attar oil crafted with zero alcohol for a skin-intimate, long-lasting aura.' :
+                     extra === 'Scent Card' ? 'A detailed breakdown of the fragrance pyramid, origin of ingredients, and usage guide.' :
+                     extra === 'Gifting Case' ? 'Arrives in a signature velvet-lined presentation box, perfect for preservation or gifting.' :
+                     'Included as a hallmark of Qilzir quality and artisan craftsmanship.'}
+                  </p>
+               </div>
+             ))}
           </div>
         </div>
 

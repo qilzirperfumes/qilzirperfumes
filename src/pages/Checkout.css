@@ -498,3 +498,39 @@
 }
 
 .text-gold { color: var(--color-gold); }
+
+/* Payment Support Icons */
+.payment-support-icons {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  align-items: center;
+}
+
+.payment-support-icons img {
+  height: 28px;
+  width: auto;
+  opacity: 0.85;
+  filter: grayscale(0.2);
+  transition: opacity 0.2s, filter 0.2s;
+}
+
+.payment-support-icons img:hover {
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+.payment-notice {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-text-mutted);
+  background: #fdfaf5;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--color-gold);
+}
+
+.payment-notice strong {
+  color: var(--color-black);
+}
+

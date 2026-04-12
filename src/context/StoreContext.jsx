@@ -140,6 +140,31 @@ export const StoreProvider = ({ children }) => {
   // ── Product CRUD (synced to MongoDB when available) ─────────────────────
   const formatPrice = (num) => '₹' + Number(num).toLocaleString('en-IN');
 
+  const createOrder = async (orderData) => {
+    if (apiReady) {
+      try {
+        const order = await apiFetch('/orders', {
+          method: 'POST',
+          body: JSON.stringify({
+            ...orderData,
+            status: 'Pending',
+          }),
+        });
+        setOrders(prev => [order, ...prev]);
+        return order;
+      } catch (err) {
+        console.error('Failed to save order:', err.message);
+        throw err;
+      }
+    } else {
+      // Offline fallback
+      const localOrder = { ...orderData, id: 'QZ-' + Date.now(), status: 'Offline' };
+      setOrders(prev => [localOrder, ...prev]);
+      return localOrder;
+    }
+  };
+
+
   const addProduct = async (data) => {
     const payload = {
       ...data,
@@ -150,7 +175,9 @@ export const StoreProvider = ({ children }) => {
       sales: 0,
       size: Number(data.size) || 100,
       unit: data.unit || 'ml',
+      extras: data.extras || [], // Added for card, diffuser, etc.
     };
+
 
     if (apiReady) {
       try {
@@ -176,7 +203,9 @@ export const StoreProvider = ({ children }) => {
       ...updates,
       tag: updates.isNewArrival ? 'New Arrival' : (updates.tag || ''),
       size: Number(updates.size) || undefined,
+      extras: updates.extras,
     };
+
 
     // Optimistic update
     setProductsRaw(prev => prev.map(p => p.id === id ? { ...p, ...sanitized } : p));
@@ -283,7 +312,7 @@ export const StoreProvider = ({ children }) => {
       cartItems, addToCart, removeFromCart, updateQty, clearCart,
       cartTotal, cartCount,
       completeOrder,
-      isCODEligible,
+      createOrder,
       formatPrice,
     }}>
       {children}

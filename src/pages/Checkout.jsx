@@ -53,15 +53,86 @@ const Checkout = () => {
     setStep(1);
   };
 
-  const handlePaymentNext = (e) => {
-    e.preventDefault();
-    setStep(2);
+  const initRazorpay = () => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY || 'rzp_test_somekeyhere', // User will need to set this in .env
+      amount: cartTotal * 100, // Amount in paise
+      currency: "INR",
+      name: "Qilzir Perfumes",
+      description: "Artisan Attar Acquisition",
+      image: "/logo.png",
+      handler: function (response) {
+        // Payment success
+        handlePlaceOrder({
+          paymentId: response.razorpay_payment_id,
+          method: 'online'
+        });
+      },
+      prefill: {
+        name: form.name,
+        email: form.email,
+        contact: form.phone
+      },
+      theme: { color: "#C8A96A" },
+      // Prioritize UPI and Card for Indian Market
+      config: {
+        display: {
+          blocks: {
+            banks: {
+              name: 'Preferred Methods',
+              instruments: [
+                { method: 'upi' },
+                { method: 'card' }
+              ],
+            },
+          },
+          sequence: ['block.banks'],
+        },
+      },
+    };
+
+
+    if (window.Razorpay) {
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } else {
+      alert("Payment gateway failed to load. Please check your connection.");
+    }
   };
 
-  const handlePlaceOrder = () => {
-    completeOrder();
-    setPlaced(true);
+  const handlePlaceOrder = async (paymentDetails = {}) => {
+    const orderData = {
+      customerName: form.name,
+      email: form.email,
+      phone: form.phone,
+      address: `${form.address}, ${form.city} - ${form.pincode}`,
+      items: cartItems.map(i => ({
+        product: i._id || i.id,
+        name: i.name,
+        qty: i.qty,
+        price: i.price
+      })),
+      total: cartTotal,
+      paymentMethod: paymentMethod,
+      paymentId: paymentDetails.paymentId || 'N/A',
+    };
+
+    try {
+      await createOrder(orderData);
+      setPlaced(true);
+    } catch (err) {
+      alert("Failed to save order. Please try again.");
+    }
   };
+
+  const handleConfirmOrder = () => {
+    if (paymentMethod === 'online') {
+      initRazorpay();
+    } else {
+      handlePlaceOrder({ method: 'cod' });
+    }
+  };
+
 
   return (
     <div className="checkout-page section-padding container min-h-screen">
@@ -178,43 +249,28 @@ const Checkout = () => {
                 </label>
               </div>
 
-              {/* Card form when online selected */}
+              {/* Online payment description - No manual form needed as Razorpay handles it */}
               {paymentMethod === 'online' && (
-                <form onSubmit={handlePaymentNext} className="checkout-form mt-6">
-                  <div className="checkout-field">
-                    <label>Card Number</label>
-                    <input required placeholder="1234 5678 9012 3456" maxLength={19}
-                      value={cardForm.number}
-                      onChange={e => setCardForm({ ...cardForm, number: e.target.value })} />
+
+                <div className="checkout-payment-details mt-6 animate-fade-in">
+                  <div className="payment-support-icons">
+                    <img src="https://img.icons8.com/color/48/000000/google-pay.png" alt="GPay" />
+                    <img src="https://img.icons8.com/color/48/000000/upi.png" alt="UPI" />
+                    <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" />
+                    <img src="https://img.icons8.com/color/48/000000/mastercard.png" alt="Mastercard" />
                   </div>
-                  <div className="checkout-form-row">
-                    <div className="checkout-field">
-                      <label>Expiry Date</label>
-                      <input required placeholder="MM / YY" maxLength={7}
-                        value={cardForm.expiry}
-                        onChange={e => setCardForm({ ...cardForm, expiry: e.target.value })} />
-                    </div>
-                    <div className="checkout-field">
-                      <label>CVV</label>
-                      <input required type="password" placeholder="•••" maxLength={4}
-                        value={cardForm.cvv}
-                        onChange={e => setCardForm({ ...cardForm, cvv: e.target.value })} />
-                    </div>
-                  </div>
-                  <div className="checkout-field">
-                    <label>Name on Card</label>
-                    <input required placeholder="As printed on card"
-                      value={cardForm.name}
-                      onChange={e => setCardForm({ ...cardForm, name: e.target.value })} />
-                  </div>
+                  <p className="payment-notice">
+                    You will be redirected to a secure payment gateway to complete your transaction via <strong>UPI</strong>, <strong>Cards</strong>, or <strong>Net Banking</strong>.
+                  </p>
                   <div className="checkout-secure-note">
                     <Lock size={12} /> Your payment information is encrypted and secure.
                   </div>
-                  <button type="submit" className="btn btn-primary w-full mt-4">Review Order</button>
-                </form>
+                  <button onClick={() => setStep(2)} className="btn btn-primary w-full mt-6">Review Order</button>
+                </div>
               )}
 
               {paymentMethod === 'cod' && isCODEligible && (
+
                 <div className="mt-6">
                   <div className="checkout-cod-info">
                     Pay ₹{formatPrice(cartTotal).replace('₹', '')} upon delivery. No advance payment needed.
@@ -261,9 +317,10 @@ const Checkout = () => {
                 ))}
               </div>
 
-              <button onClick={handlePlaceOrder} className="btn btn-gold w-full mt-6 text-lg py-5">
+              <button onClick={handleConfirmOrder} className="btn btn-gold w-full mt-6 text-lg py-5">
                 Place Order · {formatPrice(cartTotal)}
               </button>
+
               <button onClick={() => setStep(1)} className="checkout-back-link">← Back to Payment</button>
             </div>
           )}
